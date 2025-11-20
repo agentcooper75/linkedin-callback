@@ -1,3 +1,9 @@
+const express = require("express");
+const axios = require("axios");
+const app = express();
+
+const { LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET, LINKEDIN_REDIRECT_URI } = process.env;
+
 app.get("/linkedin/callback", async (req, res) => {
   const code = req.query.code;
 
@@ -13,28 +19,32 @@ app.get("/linkedin/callback", async (req, res) => {
         params: {
           grant_type: "authorization_code",
           code,
-          redirect_uri: process.env.LINKEDIN_REDIRECT_URI,
-          client_id: process.env.LINKEDIN_CLIENT_ID,
-          client_secret: process.env.LINKEDIN_CLIENT_SECRET
-        }
+          redirect_uri: LINKEDIN_REDIRECT_URI,
+          client_id: LINKEDIN_CLIENT_ID,
+          client_secret: LINKEDIN_CLIENT_SECRET,
+        },
       }
     );
 
     const accessToken = tokenResponse.data.access_token;
     const expiresIn = tokenResponse.data.expires_in;
 
-    console.log("Access token:", accessToken, "expires in:", expiresIn);
+    console.log("Access Token:", accessToken);
 
-    const appUrl = `pia://linkedin-callback?access_token=${encodeURIComponent(
-      accessToken
-    )}&expires_in=${expiresIn}`;
+    // iOS Redirect (nur für Testzwecke!)
+    const appUrl = `pia://linkedin-callback?access_token=${encodeURIComponent(accessToken)}&expires_in=${expiresIn}`;
 
-    console.log("Redirecting to iOS App:", appUrl);
+    console.log("Redirecting to:", appUrl);
     return res.redirect(appUrl);
   } catch (e) {
-    console.error(e.response?.data || e.message);
+    console.error(e?.response?.data || e.message);
     return res.status(500).send("Error exchanging code");
   }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log("Listening on port", PORT);
 });
 
 
