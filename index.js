@@ -23,10 +23,11 @@ app.get("/linkedin/callback", async (req, res) => {
     const accessToken = tokenResponse.data.access_token;
     const expiresIn = tokenResponse.data.expires_in;
 
-    console.log("Access Token erhalten:", accessToken);
+    console.log("Access token:", accessToken, "expires in:", expiresIn);
 
-    // 🔹 WICHTIG: Redirect in die App (Scheme = pia://)
-    const appUrl = `pia://linkedin-callback?access_token=${encodeURIComponent(accessToken)}&expires_in=${expiresIn}`;
+    const appUrl = `pia://linkedin-callback?access_token=${encodeURIComponent(
+      accessToken
+    )}&expires_in=${expiresIn}`;
 
     console.log("Redirecting to iOS App:", appUrl);
     return res.redirect(appUrl);
@@ -35,4 +36,5 @@ app.get("/linkedin/callback", async (req, res) => {
     return res.status(500).send("Error exchanging code");
   }
 });
+
 
